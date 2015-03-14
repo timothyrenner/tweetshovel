@@ -128,7 +128,7 @@ You can always apply a `filter` or something after the calls are made to get exa
 `make-creds` reads a map with the authentication tokens identical to the JSON object in the command line auth, except with keywords: `:CONSUMER_KEY`, `:CONSUMER_SECRET`, `:OAUTH_TOKEN`, and `:OAUTH_SECRET`.
 It's basically a pass-through for the authentication for the API client tweetshovel uses.
 
-<!-- The API docs are hosted here. TODO: Add link. -->
+The API docs are hosted [here](http://timothyrenner.github.io/tweetshovel/).
 
 ### Examples
 
