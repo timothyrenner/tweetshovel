@@ -134,7 +134,7 @@ The API docs are hosted [here](http://timothyrenner.github.io/tweetshovel/).
 
 ```clojure
 ;; Grabs all available tweets from Kanye West, trimming the user information.
-(shovel-timeline "kanyewest" (make-creds "creds.json") {:trim-user "true"})
+(shovel-timeline "kanyewest" (make-creds cred-map) {:trim-user "true"})
 
 ;; Grabs the latest 500(ish) tweets from the President of the US.
 (shovel-timeline "BarackObama"
