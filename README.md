@@ -1,3 +1,7 @@
+
+![Clojars Project](http://clojars.org/tweetshovel/latest-version.svg)
+###[API Documentation](http://timothyrenner.github.io/tweetshovel/) 
+
 # Tweetshovel
 
 Tweetshovel is a command line tool for accessing Twitter's REST APIs with an explicit design focus on scraping.
@@ -5,6 +9,7 @@ It strictly obeys Twitter's rate limits (i.e. _without_ actually hitting it and 
 If your call gets too close to the rate limit, tweetshovel will sleep until the rate limit resets.
 
 It is also a Clojure library that can be used for enhanced control over things like authentication, shovel termination, and output.
+
 
 ## Reasoning
 
