@@ -194,7 +194,7 @@
   `-t --timeline SCREEN_NAME` Shovels the user's timeline
 
   `-s --search QUERY` Shovels the search query. Use with caution, as this option
-  could result in very long scrapes.
+  could result in very long scrapes. Use `--limit` to avoid this.
 
   Only one of the above options should be selected.
 
@@ -204,7 +204,12 @@
   required.
 
   `-o --output FILE` The name of the output file to output the tweets. The
-  output format is JSON. This option is not required, and defaults to STDOUT."
+  output format is JSON. This option is not required, and defaults to STDOUT.
+  
+  `-l --limit LIMIT` An approximate limit on the number of tweets. This option
+  is not required. If it isn't excluded, all tweets (timeline or search) will be
+  pulled. It's recommended this be used with `--search` to limit the length of
+  the scrapes."
   [& args]
   (let [options (parse-opts
     args
