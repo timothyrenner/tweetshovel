@@ -213,7 +213,7 @@
      ["-a" "--auth AUTH_FILE" "Specify the JSON authentication file." :id :auth]
      ["-o" "--output FILE" "The output file for the tweets."
         :default (System/out) :default-desc "STDOUT" :id :output]
-     ["-l" "--limit LIMIT" "Limit on the number of tweets to pull." :id :limit
+     ["-l" "--limit LIMIT" "Approximate limit on the number of tweets." :id :limit
         :parse-fn #(Integer/parseInt %)]
      ["-h" "--help" "Displays help." :id :help]])]
 
@@ -237,10 +237,6 @@
           terminate? (if-let [limit (:limit (:options options))]
                              (fn [x] (>= (count x) limit))
                              (fn [x] false))]
-      ;; DEBUG.
-      ;;(println (:limit (:options options)))
-      ;;(System/exit 1)
-      ;; END DEBUG.
       
       (spit output (json/generate-string
         (cond
