@@ -75,6 +75,7 @@ Where `OPTIONS` are as follows:
 -s, --search QUERY                  Shovel the search query.
 -a, --auth AUTH_FILE                Specify the JSON authentication file.
 -o, --output FILE           STDOUT  The output file for the tweets.
+-l, --limit LIMIT                   Approximate limit on the number of tweets.
 -h, --help                          Displays help.
 
 ```
@@ -106,7 +107,7 @@ In your namespace, include with
 
 ```clojure
 (ns my.ns
-  (:require tweetshovel.core))
+  (:require [tweetshovel.core]))
 ```
 
 Presently, the `tweetshovel` namespace exposes three functions (excluding `-main`):
