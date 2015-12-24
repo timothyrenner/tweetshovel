@@ -213,6 +213,8 @@
      ["-a" "--auth AUTH_FILE" "Specify the JSON authentication file." :id :auth]
      ["-o" "--output FILE" "The output file for the tweets."
         :default (System/out) :default-desc "STDOUT" :id :output]
+     ["-l" "--limit LIMIT" "Limit on the number of tweets to pull." :id :limit
+        :parse-fn #(Integer/parseInt %)]
      ["-h" "--help" "Displays help." :id :help]])]
 
     ;; Verify that there are no errors in the option set.
@@ -231,17 +233,28 @@
 
     ;; Execute the shoveler.
     (let [{{:keys [output auth]} :options} options
-          creds (make-creds (json/parse-string (slurp auth) true))]
-
+          creds (make-creds (json/parse-string (slurp auth) true))
+          terminate? (if-let [limit (:limit (:options options))]
+                             (fn [x] (>= (count x) limit))
+                             (fn [x] false))]
+      ;; DEBUG.
+      ;;(println (:limit (:options options)))
+      ;;(System/exit 1)
+      ;; END DEBUG.
+      
       (spit output (json/generate-string
         (cond
           (:timeline (:options options))
           (shovel-timeline (:timeline (:options options))
-                           creds)
+                           creds
+                           {}
+                           terminate?)
 
           (:search (:options options))
           (shovel-search (:search (:options options))
-                         creds)
+                         creds
+                         {}
+                         terminate?)
 
           :else (do (println "Must specify something to shovel.")
                 (println (:summary options))
