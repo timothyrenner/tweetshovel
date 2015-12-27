@@ -7,6 +7,7 @@
                  [twitter-api "0.7.8"]
                  [cheshire "5.4.0"]
                  [org.slf4j/slf4j-log4j12 "1.6.4"]
+                 [com.taoensso/timbre "4.1.4"]
                  [org.clojure/tools.cli "0.3.1"]]
   :plugins [[codox "0.8.10"]
             [lein-bin "0.3.5"]]

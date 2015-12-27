@@ -3,7 +3,9 @@
             [clojure.string :as str]
             [twitter.oauth :refer [make-oauth-creds]]
             [twitter.api.restful :as twr]
-            [clojure.tools.cli :refer [parse-opts]])
+            [clojure.tools.cli :refer [parse-opts]]
+            [taoensso.timbre :as timbre]
+            [taoensso.timbre.appenders.core :as append])
   (:gen-class))
 
 (defn- sleep-time [response]
@@ -54,8 +56,12 @@
         (let [updated-err (inc err-count)]
           (Thread/sleep (* 1000 updated-err))
           (if (< err-count 3)
-            (twitter-request req-fn req-args updated-err)
-            (throw e)))))))
+            (do
+              (timbre/warn "Error with API call. Retrying.")
+              (twitter-request req-fn req-args updated-err))
+            (do
+              (timbre/error "Too many errors with API call.")
+              (throw e))))))))
 
 (defn- shovel
   "Shovels tweets from Twitter's API, paging through results and respecting
@@ -80,11 +86,15 @@
     (shovel shovel-fn extract terminate? next-args [] shovel-args))
 
   ([shovel-fn extract terminate? next-args tweets shovel-args]
+    (timbre/info (str "Making API call with params: " shovel-args "."))
     (let [response (twitter-request shovel-fn shovel-args)
-          new-tweets (extract response)]
+          new-tweets (extract response)
+          to-sleep (sleep-time response)]
       ;; Sleeps for 0 seconds if not near the rate limit, or sleeps until the
       ;; rate limit resets.
-      (Thread/sleep (sleep-time response))
+      (when (> to-sleep 0)
+          (timbre/info (str "Rate limit reached. Sleeping for " to-sleep ".")))
+      (Thread/sleep to-sleep)
       (let [all-tweets (into tweets new-tweets)]
         (if (and (> (count new-tweets) 0)
                  (not (terminate? all-tweets)))
@@ -209,7 +219,10 @@
   `-l --limit LIMIT` An approximate limit on the number of tweets. This option
   is not required. If it isn't excluded, all tweets (timeline or search) will be
   pulled. It's recommended this be used with `--search` to limit the length of
-  the scrapes."
+  the scrapes.
+  
+  `-v --verbose` Activates logging to STDERR. API calls, errors, and sleeps
+  are logged. By default logging is off."
   [& args]
   (let [options (parse-opts
     args
@@ -220,6 +233,7 @@
         :default (System/out) :default-desc "STDOUT" :id :output]
      ["-l" "--limit LIMIT" "Approximate limit on the number of tweets." :id :limit
         :parse-fn #(Integer/parseInt %)]
+     ["-v" "--verbose" "Activates logging to STDERR." :id :verbose]
      ["-h" "--help" "Displays help." :id :help]])]
 
     ;; Verify that there are no errors in the option set.
@@ -235,6 +249,16 @@
     (when (nil? (:auth (:options options)))
       (println "An authentication file must be specified.")
       (println (:summary options)) (System/exit 1))
+    
+    ;; Set up logging. DEBUG until configured.
+    (timbre/set-config!
+      (into timbre/example-config
+        {:appenders
+          {:err-appender
+           (into
+              (timbre/println-appender {:stream :*err*})
+              ;; Turns off the appender if --verbose wasn't used.
+              {:enabled? (:verbose (:options options))})}}))
 
     ;; Execute the shoveler.
     (let [{{:keys [output auth]} :options} options

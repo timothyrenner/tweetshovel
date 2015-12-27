@@ -50,27 +50,27 @@
     (= [] (shovel
       (fn [x] {:headers
         {:x-rate-limit-remaining "180"
-          :x-rate-limit-reset (str (System/currentTimeMillis))}
+          :x-rate-limit-reset (str (int (/ (System/currentTimeMillis) 1000)))}
           :body []}) ; shovel-fn
       (fn [x] (:body x)) ; extract
       (fn [x] true) ; terminate ?
       (fn [x] {}) ; next-args
       {}))) ; shovel-args
   (testing "Proper call with sleep."
-    ;; This shovel function returns a single tweet once, then returns an empty
-    ;; body after that, to fully test shovel.
-    (= [{:text "Hello" :id 1}]
-      (shovel
-        (fn [x] (if (or (complement (nil? (:max-id x))) (< (:max-id x) 1))
-          {:headers {:x-rate-limit-remaining "180"
-                     :x-rate-limit-reset
-                      (str (+ 10000 (System/currentTimeMillis)))}
-           :body []}
-           {:headers {:x-rate-limit-remaining "1"
-                      :x-rate-limit-reset
-                        (str (+ 10000 (System/currentTimeMillis)))}
-            :body [{:id 1 :text "Hello"}]})) ; shovel-fn
-        (fn [x] (:body x)) ; extract
-        (fn [x] false) ; terminate?
-        (fn [x] {}) ; next-args
-         {})))); shovel-args
+    ;; This shovel function returns only two tweets.
+    (let [ten-seconds (-> (System/currentTimeMillis) (/ 1000) int (+ 10) str)
+          first-response {:headers {:x-rate-limit-remaining "2"
+                                    :x-rate-limit-reset ten-seconds}
+                          :body [{:id 2}]}
+          second-response {:headers {:x-rate-limit-remaining "1"
+                                     :x-rate-limit-reset ten-seconds}
+                           :body [{:id 1 :text "Hello"}]}]
+      (= [{:id 2} {:text "Hello" :id 1}]
+         (shovel
+          (fn [p] (if (nil? (:max-id p))
+                      first-response
+                      second-response)) ; shovel-fn
+          (fn [x] (:body x)) ; extract
+          (fn [x] (>= (count x) 2)) ; terminate?
+          (fn [x] {:max-id (dec (apply min (map :id x)))}) ; next-args
+          {}))))) ; shovel-args

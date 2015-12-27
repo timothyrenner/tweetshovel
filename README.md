@@ -76,6 +76,7 @@ Where `OPTIONS` are as follows:
 -a, --auth AUTH_FILE                Specify the JSON authentication file.
 -o, --output FILE           STDOUT  The output file for the tweets.
 -l, --limit LIMIT                   Approximate limit on the number of tweets.
+-v, --verbose                       Activates logging to STDERR.
 -h, --help                          Displays help.
 
 ```
@@ -195,7 +196,7 @@ There are several things that I'd like to implement on top of this initial relea
 In no particular order:
 
 * Tweet "hydration" with `statuses/lookup`. `twitter-api` doesn't have a function for this API method, so I'll need to add that and PR it. I'm not sure how long that will take me.
-* Status printing to screen. It would be nice to print the rate status and sleep times to the screen as an option (like `--verbose`). I haven't worked out the best way to do this so I'm open to suggestions.
+* ~~Status printing to screen. It would be nice to print the rate status and sleep times to the screen as an option (like `--verbose`). I haven't worked out the best way to do this so I'm open to suggestions.~~ Implemented in master.
 * Followers / following shovel functions. This would make for some fun graph-based analyses.
 * Python implementation. I'd like to adapt this into a Python library for tighter integration with the Python data science stack.
 * Speed improvements. Tweetshovel's pretty slow. It's not a huge deal because there really isn't much need for high performance, but it could definitely be faster.
