@@ -224,7 +224,7 @@
   are logged. By default logging is off.
   
   `-p --params PARAMS` Additional parameters for the API calls. 
-  <p1_name>=<p1_value>,<p2_name>=<p2_value>"
+  `<p1_name>=<p1_value>,<p2_name>=<p2_value>`"
   [& args]
   (let [options (parse-opts
     args
