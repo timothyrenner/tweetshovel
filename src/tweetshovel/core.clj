@@ -4,8 +4,7 @@
             [twitter.oauth :refer [make-oauth-creds]]
             [twitter.api.restful :as twr]
             [clojure.tools.cli :refer [parse-opts]]
-            [taoensso.timbre :as timbre]
-            [taoensso.timbre.appenders.core :as append])
+            [taoensso.timbre :as timbre])
   (:gen-class))
 
 (defn- sleep-time [response]
@@ -222,7 +221,10 @@
   the scrapes.
   
   `-v --verbose` Activates logging to STDERR. API calls, errors, and sleeps
-  are logged. By default logging is off."
+  are logged. By default logging is off.
+  
+  `-p --params PARAMS` Additional parameters for the API calls. 
+  <p1_name>=<p1_value>,<p2_name>=<p2_value>"
   [& args]
   (let [options (parse-opts
     args
@@ -234,11 +236,21 @@
      ["-l" "--limit LIMIT" "Approximate limit on the number of tweets." :id :limit
         :parse-fn #(Integer/parseInt %)]
      ["-v" "--verbose" "Activates logging to STDERR." :id :verbose]
+     ["-p" "--params PARAMS" "Additional parameters for the API calls.
+                              \t\t<p1_name>=<p1_val>,<p2_name>=<p2_val>,.." 
+        :id :params :default {} :default-desc "None."
+        :parse-fn (fn [x] 
+                      (->> (str/split x #",")
+                           (map #(str/split % #"="))
+                           (map (fn [[f l]] 
+                                    [(keyword (str/replace f #"_" "-")) l]))
+                           (into {})))]
      ["-h" "--help" "Displays help." :id :help]])]
-
+    
     ;; Verify that there are no errors in the option set.
     (when (:errors options)
       (println (str args " is an invalid argument string."))
+      (println (:errors options))
       (println (:summary options)) (System/exit 1))
 
     ;; Display help if requested.
@@ -272,13 +284,13 @@
           (:timeline (:options options))
           (shovel-timeline (:timeline (:options options))
                            creds
-                           {}
+                           (:params (:options options))
                            terminate?)
 
           (:search (:options options))
           (shovel-search (:search (:options options))
                          creds
-                         {}
+                         (:params (:options options))
                          terminate?)
 
           :else (do (println "Must specify something to shovel.")

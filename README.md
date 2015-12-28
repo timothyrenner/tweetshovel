@@ -77,6 +77,8 @@ Where `OPTIONS` are as follows:
 -o, --output FILE           STDOUT  The output file for the tweets.
 -l, --limit LIMIT                   Approximate limit on the number of tweets.
 -v, --verbose                       Activates logging to STDERR.
+-p, --params                None.   Additional parameters for the API calls.
+                                    <p1_name>=<p1_val>,<p2_name>=<p2_val>,..
 -h, --help                          Displays help.
 
 ```
