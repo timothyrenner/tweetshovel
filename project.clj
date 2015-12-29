@@ -1,4 +1,4 @@
-(defproject tweetshovel "0.1.0"
+(defproject tweetshovel "0.2.0"
   :description "A library for scraping Tweets from Twitter's REST API."
   :url "https://github.com/timothyrenner/tweetshovel"
   :license {:name "Eclipse Public License"
