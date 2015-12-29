@@ -20,6 +20,7 @@
   (let [{{:keys [x-rate-limit-reset x-rate-limit-remaining]} :headers} response
         reset (read-string x-rate-limit-reset)
         remaining (read-string x-rate-limit-remaining)]
+    (timbre/info (str "Remaining: " remaining "."))
     (if (< remaining 2)
       (-> (System/currentTimeMillis)
         (/ 1000)  ; Convert to epoch seconds.
@@ -89,12 +90,15 @@
     (let [response (twitter-request shovel-fn shovel-args)
           new-tweets (extract response)
           to-sleep (sleep-time response)]
+      (timbre/info (str "Obtained " (count new-tweets) " new tweets."))
       ;; Sleeps for 0 seconds if not near the rate limit, or sleeps until the
       ;; rate limit resets.
       (when (> to-sleep 0)
           (timbre/info (str "Rate limit reached. Sleeping for " to-sleep ".")))
       (Thread/sleep to-sleep)
       (let [all-tweets (into tweets new-tweets)]
+        (timbre/info 
+          (str "Total number of tweets obtained: " (count all-tweets) "."))
         (if (and (> (count new-tweets) 0)
                  (not (terminate? all-tweets)))
           (recur
@@ -262,7 +266,7 @@
       (println "An authentication file must be specified.")
       (println (:summary options)) (System/exit 1))
     
-    ;; Set up logging. DEBUG until configured.
+    ;; Set up logging.
     (timbre/set-config!
       (into timbre/example-config
         {:appenders
@@ -280,20 +284,20 @@
                              (fn [x] false))]
       
       (spit output (json/generate-string
-        (cond
-          (:timeline (:options options))
-          (shovel-timeline (:timeline (:options options))
+          (cond
+            (:timeline (:options options))
+            (shovel-timeline (:timeline (:options options))
+                             creds
+                             (:params (:options options))
+                             terminate?)
+
+            (:search (:options options))
+            (shovel-search (:search (:options options))
                            creds
                            (:params (:options options))
                            terminate?)
 
-          (:search (:options options))
-          (shovel-search (:search (:options options))
-                         creds
-                         (:params (:options options))
-                         terminate?)
-
-          :else (do (println "Must specify something to shovel.")
-                (println (:summary options))
-                (System/exit 1)))
-        {:pretty true})))))
+            :else (do (println "Must specify something to shovel.")
+                  (println (:summary options))
+                  (System/exit 1)))
+           {:pretty true})))))

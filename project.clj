@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [twitter-api "0.7.8"]
-                 [cheshire "5.4.0"]
+                 [cheshire "5.5.0"]
                  [org.slf4j/slf4j-log4j12 "1.6.4"]
                  [com.taoensso/timbre "4.1.4"]
                  [org.clojure/tools.cli "0.3.1"]]
