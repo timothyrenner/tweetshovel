@@ -1,6 +1,5 @@
 
-![Clojars Project](http://clojars.org/tweetshovel/latest-version.svg)
-###[API Documentation](http://timothyrenner.github.io/tweetshovel/) 
+###[API Documentation (Development)](http://timothyrenner.github.io/tweetshovel/) 
 
 # Tweetshovel
 
@@ -8,8 +7,9 @@ Tweetshovel is a command line tool for accessing Twitter's REST APIs with an exp
 It strictly obeys Twitter's rate limits (i.e. _without_ actually hitting it and getting a 429), and automatically pages through the tweet timelines or other results as needed.
 If your call gets too close to the rate limit, tweetshovel will sleep until the rate limit resets.
 
-It is also a Clojure library that can be used for enhanced control over things like authentication, shovel termination, and output.
-
+~~It is also a Clojure library that can be used for enhanced control over things like authentication, shovel termination, and output.~~
+The library functionality has been removed to allow breaking backend changes needed to perform long scrapes from the command line.
+Those changes are presently in development.
 
 ## Reasoning
 
@@ -97,66 +97,6 @@ With the `xxxxxxxxxx` filled in with the Twitter API credentials.
 You can read more about Twitter's credentials and getting set up [here](https://apps.twitter.com).
 Basically, you have to register an "app", and you get the tokens after doing a little OAuth dancing.
 The `"OAUTH_TOKEN"` and `"OAUTH_SECRET"` fields are also sometimes referred to as access token and access secret.
-
-## Library Usage
-
-To use as a Clojure library, include in your Leiningen `project.clj`'s dependencies:
-
-```clojure
-[tweetshovel "0.1.0"]
-```
-
-In your namespace, include with
-
-```clojure
-(ns my.ns
-  (:require [tweetshovel.core]))
-```
-
-Presently, the `tweetshovel` namespace exposes three functions (excluding `-main`):
-
-`shovel-timeline` takes the screen name of the user to shovel tweets from, the credentials (as created by `make-creds`, described below), a parameter map for the API call, and an optional terminator function.
-The parameter map is a keyword-ized map of the options available with the [`statuses/user_timeline`](https://dev.twitter.com/rest/reference/get/statuses/user_timeline) endpoint.
-Any dashes in the keywords of the parameter map get converted to underscores.
-The terminator operates on all tweets obtained so far in the shovel and returns `true` when it's time to stop shoveling.
-For example, a terminator that looks like this:
-
-```clojure
-(fn [x] (> (count x) 2000))
-```
-
-will terminate after more than 2000 tweets have been obtained.
-The terminator can be any function that takes a vector of tweets, and defaults to always returning `false`.
-Terminators are useful for prolonged scrapes of large numbers of users, where the rate limit sleeping will result in a substantial delay.
-The terminator allows fine-grained control over the number of calls, restricting them to the bare minimum required.
-Note that the terminator is not designed to control the output - just the calls.
-You can always apply a `filter` or something after the calls are made to get exactly what you want.
-
-`shovel-search` works exactly like `shovel-timeline`, except instead of a screen name it takes a search query for the [`search/tweets`](https://dev.twitter.com/rest/reference/get/search/tweets) endpoint.
-
-`make-creds` reads a map with the authentication tokens identical to the JSON object in the command line auth, except with keywords: `:CONSUMER_KEY`, `:CONSUMER_SECRET`, `:OAUTH_TOKEN`, and `:OAUTH_SECRET`.
-It's basically a pass-through for the authentication for the API client tweetshovel uses.
-
-The API docs are hosted [here](http://timothyrenner.github.io/tweetshovel/).
-
-### Examples
-
-```clojure
-;; Grabs all available tweets from Kanye West, trimming the user information.
-(shovel-timeline "kanyewest" (make-creds cred-map) {:trim-user "true"})
-
-;; Grabs the latest 500(ish) tweets from the President of the US.
-(shovel-timeline "BarackObama"
-                 (make-creds cred-map)
-                 {}
-                 #(>= (count %) 500))
-
-;; Searches for tweets in English related to Clojure.
-(shovel-search "#clojure"
-               (make-creds cred-map)
-               {:lang "en"}
-               #(>= (count %) 1000))
-```
 
 ## Building
 

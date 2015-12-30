@@ -110,7 +110,7 @@
             (into shovel-args (next-args all-tweets)))
           all-tweets)))))
 
-(defn make-creds
+(defn- make-creds
   "Creates the Twitter API authentication from a map of access tokens.
 
   `cred-map` is a map with the following keys/values:
@@ -125,7 +125,7 @@
                     (:OAUTH_TOKEN cred-map)
                     (:OAUTH_SECRET cred-map)))
 
-(defn shovel-timeline
+(defn- shovel-timeline
   "Shovels tweets from a user's timeline.
 
   `screen-name` is the Twitter screen name of the user.
@@ -162,7 +162,7 @@
       (fn [t] {:max-id (dec (apply min (map :id t)))}) ; next-args
       (into {:count 200 :screen-name screen-name} params))))
 
-(defn shovel-search
+(defn- shovel-search
   "Shovels tweets from the search API.
 
   `query` is a query string to be applied to the search. See the Twitter API

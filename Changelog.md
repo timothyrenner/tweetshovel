@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0
+
+* All library functions deprecated (made private).
+
 ## 0.2.0
 
 * Logging option with `--verbose`.
