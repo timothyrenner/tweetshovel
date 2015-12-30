@@ -1,6 +1,3 @@
-
-###[API Documentation (Development)](http://timothyrenner.github.io/tweetshovel/) 
-
 # Tweetshovel
 
 Tweetshovel is a command line tool for accessing Twitter's REST APIs with an explicit design focus on scraping.
